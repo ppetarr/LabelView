@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="LabelView">
+        <!-- Text that will appear above the line. -->
+        <attr name="textValue" format="string"/>
+        <!-- Text that will appear below the line. -->
+        <attr name="labelValue" format="string"/>
+        <!-- Line colour. -->
+        <attr name="lineColour" format="color"/>
+        <!-- Text colour. -->
+        <attr name="textColour" format="color"/>
+        <!-- Label colour -->
+        <attr name="labelColour" format="color"/>
+        <!-- Line thickness. -->
+        <attr name="lineThickness" format="float"/>
+
+        <attr name="labelSize" format="dimension"/>
+        <attr name="textSize" format="dimension"/>
+    </declare-styleable>
+</resources>
