@@ -5,10 +5,11 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.Typeface;
+import android.support.annotation.ColorInt;
 import android.support.v4.content.ContextCompat;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 
 
@@ -46,12 +47,11 @@ public class LabelView extends View {
     private int textX;
     private int labelX;
 
-
+    private String textValue;
+    private String labelValue;
     private int lineColour;
     private int textColour;
     private int labelColour;
-    private String textValue;
-    private String labelValue;
     private float lineThickness;
     private int labelSize;
     private int textSize;
@@ -84,10 +84,15 @@ public class LabelView extends View {
                 a.recycle();
             }
         } else {
+            textSize = labelSize = (int) DEFAULT_TEXT_SIZE;
             lineColour = ContextCompat.getColor(context, DEFAULT_LINE_COLOR);
             textColour = ContextCompat.getColor(context, DEFAULT_TEXT_COLOR);
+            labelColour = textColour;
             lineThickness = DEFAULT_LINE_THICKNESS;
         }
+
+        if (textValue == null) textValue = "";
+        if (labelValue == null) labelValue = "";
 
         linePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         linePaint.setColor(lineColour);
@@ -96,13 +101,12 @@ public class LabelView extends View {
         linePaint.setStrokeCap(Paint.Cap.SQUARE);
 
         textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-        textPaint.setTypeface(Typeface.createFromAsset(context.getAssets(), "fonts/copse.ttf"));
+
         textPaint.setColor(textColour);
         textPaint.setTextSize(textSize);
         textPaint.setStyle(Paint.Style.FILL);
 
         labelPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-        labelPaint.setTypeface(Typeface.createFromAsset(context.getAssets(), "fonts/copse.ttf"));
         labelPaint.setColor(labelColour);
         labelPaint.setTextSize(labelSize);
 
@@ -111,25 +115,86 @@ public class LabelView extends View {
 
         textBounds = new Rect();
         labelBounds = new Rect();
-
-
-
     }
 
+    /**
+     * Sets the text that will appear above the line.
+     * @param textValue String value.
+     */
     public void setTextValue(String textValue) {
         this.textValue = textValue;
+        if (textValue == null) this.textValue = "";
+        requestLayout();
         invalidate();
     }
 
+    /**
+     * Sets the label text that will appear below the line.
+     * @param labelValue String value.
+     */
     public void setLabelValue(String labelValue) {
         this.labelValue = labelValue;
+        if (labelValue == null) this.labelValue = "";
+        requestLayout();
         invalidate();
     }
 
+    /**
+     * Sets the text size as SP (scaled pixel unit).
+     * @param textSize desired SP size.
+     */
+    public void setTextSize(float textSize) {
+        setRawTextSize(textPaint, textSize);
+    }
+
+    /**
+     * Sets the label size as SP (scaled pixel unit).
+     * @param labelSize desired SP size.
+     */
+    public void setLabelSize(float labelSize) {
+        setRawTextSize(labelPaint, labelSize);
+    }
+
+    private void setRawTextSize(TextPaint paint, float textSize) {
+        paint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize, getResources().getDisplayMetrics()));
+        requestLayout();
+        invalidate();
+    }
+
+    /**
+     * Sets the line colour.
+     * @param colour int specified colour.
+     */
+    public void setLineColour(@ColorInt int colour) {
+        this.lineColour = colour;
+        linePaint.setColor(colour);
+        invalidate();
+    }
+
+    /**
+     * Sets the line thickness.
+     * @param lineThickness float value.
+     */
+    public void setLineThickness(float lineThickness) {
+        this.lineThickness = lineThickness;
+        linePaint.setStrokeWidth(lineThickness);
+        invalidate();
+    }
+
+    /**
+     * Update y-position of the line.
+     * @param height View height.
+     */
     private void updateLineYPosition(int height) {
         lineY = height / 2;
     }
 
+    /**
+     * Update the x-position of the line. <p />
+     * The length of the line is based on the longest text between text and label.
+     * @param textBounds Rect bounds based on the text value.
+     * @param labelBounds Rect bounds based on the label value.
+     */
     private void updateLineXPosition(Rect textBounds, Rect labelBounds) {
         boolean textLonger = textBounds.width() > labelBounds.width();
 
@@ -142,11 +207,21 @@ public class LabelView extends View {
         }
     }
 
+    /**
+     * Update (x,y) positions of text.
+     * @param textBounds Rect bounds based on text value.
+     * @param width View width.
+     */
     private void updateTextPosition(Rect textBounds, int width) {
         textY = (int) ((lineY - linePaint.getStrokeWidth() / 2) - textMetrics.descent);
         textX = width / 2 - textBounds.centerX();
     }
 
+    /**
+     * Update (x,y) positions of label.
+     * @param labelBounds Rect bounds based on label value.
+     * @param width View width.
+     */
     private void updateLabelPosition(Rect labelBounds, int width) {
         labelY = (int) ((lineY + linePaint.getStrokeWidth() / 2) - labelMetrics.ascent);
         labelX = width / 2 - labelBounds.centerX();
@@ -162,6 +237,7 @@ public class LabelView extends View {
         super.onSizeChanged(width, height, oldWidth, oldHeight);
         textPaint.getTextBounds(textValue, 0, textValue.length(), textBounds);
         labelPaint.getTextBounds(labelValue, 0, labelValue.length(), labelBounds);
+
         updateLineYPosition(height);
         updateTextPosition(textBounds, width);
         updateLabelPosition(labelBounds, width);
