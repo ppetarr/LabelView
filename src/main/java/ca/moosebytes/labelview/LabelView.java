@@ -13,8 +13,6 @@ import android.util.TypedValue;
 import android.view.View;
 
 
-
-
 /**
  * Created by Petar on 6/21/2017.
  */
@@ -99,7 +97,6 @@ public class LabelView extends View {
         linePaint.setStyle(Paint.Style.STROKE);
         linePaint.setStrokeWidth(lineThickness);
         linePaint.setStrokeCap(Paint.Cap.SQUARE);
-
         textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
 
         textPaint.setColor(textColour);
@@ -109,7 +106,6 @@ public class LabelView extends View {
         labelPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         labelPaint.setColor(labelColour);
         labelPaint.setTextSize(labelSize);
-
         textMetrics = textPaint.getFontMetrics();
         labelMetrics = labelPaint.getFontMetrics();
 
@@ -227,17 +223,62 @@ public class LabelView extends View {
         labelX = width / 2 - labelBounds.centerX();
     }
 
+    /**
+     * Measure the minimum width required to display the view. <br />
+     * Based on the longest String value width-wise.
+     *
+     * <p><strong>NOTE: View padding is not taken into account</strong></p>
+     * @param textBounds Rect bounds based on text value.
+     * @param labelBounds Rect bounds based on label value.
+     * @return measured minimum width.
+     */
+    private int measureMinimumWidth(Rect textBounds, Rect labelBounds) {
+        return textBounds.width() > labelBounds.width() ? textBounds.width() : labelBounds.width();
+    }
+
+    /**
+     * Measure the minimum height required to display the view. <br />
+     * Based on FontMetrics of text value and label value in addition to the line stroke width.
+     *
+     * <p><strong>NOTE: View padding is not taken into account.</strong></p>
+     * @param textMetrics FontMetrics based on the text value.
+     * @param labelMetrics FontMetrics based on the label value.
+     * @param linePaint Paint used to draw the dividing line
+     * @return measured minimum height.
+     */
+    private int measureMinimumHeight(Paint.FontMetrics textMetrics, Paint.FontMetrics labelMetrics, Paint linePaint) {
+        return (int) ((textMetrics.bottom - textMetrics.top) + (labelMetrics.bottom - labelMetrics.top) + linePaint.getStrokeWidth());
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        textPaint.getTextBounds(textValue, 0, textValue.length(), textBounds);
+        labelPaint.getTextBounds(labelValue, 0, labelValue.length(), labelBounds);
+
+        int minimumWidth = measureMinimumWidth(textBounds, labelBounds);
+        int minimumHeight = measureMinimumHeight(textMetrics, labelMetrics, linePaint);
+
+        int width = reconcileSize(minimumWidth, widthMeasureSpec);
+        int height = reconcileSize(minimumHeight, heightMeasureSpec);
+        setMeasuredDimension(width, height);
+
+    }
+
+    private int reconcileSize(int size, int measureSpec) {
+        switch (measureSpec) {
+            case MeasureSpec.EXACTLY:
+                return MeasureSpec.getSize(measureSpec);
+            case MeasureSpec.AT_MOST:
+                return Math.min(size, MeasureSpec.getSize(measureSpec));
+            case MeasureSpec.UNSPECIFIED:
+                default:
+                return size;
+        }
     }
 
     @Override
     protected void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
         super.onSizeChanged(width, height, oldWidth, oldHeight);
-        textPaint.getTextBounds(textValue, 0, textValue.length(), textBounds);
-        labelPaint.getTextBounds(labelValue, 0, labelValue.length(), labelBounds);
-
         updateLineYPosition(height);
         updateTextPosition(textBounds, width);
         updateLabelPosition(labelBounds, width);
