@@ -260,12 +260,14 @@ public class LabelView extends View {
 
         int width = reconcileSize(minimumWidth, widthMeasureSpec);
         int height = reconcileSize(minimumHeight, heightMeasureSpec);
+        //int width = resolveSize(minimumWidth, widthMeasureSpec);
+        //int height = resolveSize(minimumHeight, heightMeasureSpec);
         setMeasuredDimension(width, height);
 
     }
 
     private int reconcileSize(int size, int measureSpec) {
-        switch (measureSpec) {
+        switch (MeasureSpec.getMode(measureSpec)) {
             case MeasureSpec.EXACTLY:
                 return MeasureSpec.getSize(measureSpec);
             case MeasureSpec.AT_MOST:
