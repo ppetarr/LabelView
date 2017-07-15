@@ -1,2 +1,3 @@
 # Android-LabelView
-![alt text](http://imgur.com/OL6fK3z)
+
+![screenshot](https://github.com/ppetarr/Android-LabelView/blob/master/labelview-demo.PNG)
