@@ -260,8 +260,6 @@ public class LabelView extends View {
 
         int width = reconcileSize(minimumWidth, widthMeasureSpec);
         int height = reconcileSize(minimumHeight, heightMeasureSpec);
-        //int width = resolveSize(minimumWidth, widthMeasureSpec);
-        //int height = resolveSize(minimumHeight, heightMeasureSpec);
         setMeasuredDimension(width, height);
 
     }
