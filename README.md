@@ -8,6 +8,34 @@ LabelView will expand to fit the longest text.
 
 ![screenshot](scrn-autofit.png)
 
+### Setup
+
+Add `"https:\\jitpack.io"` as a maven url to your top-level (project) gradle file
+
+```
+allprojects {
+ repositories {
+    jcenter()
+    maven { url "https://jitpack.io" }
+ }
+}
+```
+
+Add the dependency to your app gradle file
+
+#### Pre-Android Studio 3.0
+```
+dependencies {
+    compile 'com.github.ppetarr:Android-LabelView:v1.0.0'
+}
+```
+#### Android Studio 3.0+
+```
+dependencies {
+    implementation 'com.github.ppetarr:Android-LabelView:v1.0.0'
+}
+```
+
 ### How-to
 
 ```
@@ -24,10 +52,13 @@ LabelView will expand to fit the longest text.
 
 Change the top text:
 `app:textValue` or `lblGreeting.setTextValue(String value)`
+
 Change the label text:
 `app:labelValue` or `lblGreeting.setLabelValue(String value)`
+
 Change line colour
 `app:lineColour` or `lblGreeting.setLineColour(int colour)`
+
 Change line thickness
 `app:lineThickness` or `lblGreeting.setLineThickness(float lineThickness)`
 
