@@ -182,7 +182,7 @@ public class LabelView extends View {
      * @param height View height.
      */
     private void updateLineYPosition(int height) {
-        lineY = height / 2;
+        lineY = height / 2 + getPaddingTop();
     }
 
     /**
@@ -210,7 +210,7 @@ public class LabelView extends View {
      */
     private void updateTextPosition(Rect textBounds, int width) {
         textY = (int) ((lineY - linePaint.getStrokeWidth() / 2) - textMetrics.descent);
-        textX = width / 2 - textBounds.centerX();
+        textX = (width / 2 - textBounds.centerX()) + getPaddingStart();
     }
 
     /**
@@ -220,20 +220,19 @@ public class LabelView extends View {
      */
     private void updateLabelPosition(Rect labelBounds, int width) {
         labelY = (int) ((lineY + linePaint.getStrokeWidth() / 2) - labelMetrics.ascent);
-        labelX = width / 2 - labelBounds.centerX();
+        labelX = (width / 2 - labelBounds.centerX()) + getPaddingStart();
     }
 
     /**
      * Measure the minimum width required to display the view. <br />
      * Based on the longest String value width-wise.
      *
-     * <p><strong>NOTE: View padding is not taken into account</strong></p>
      * @param textBounds Rect bounds based on text value.
      * @param labelBounds Rect bounds based on label value.
      * @return measured minimum width.
      */
     private int measureMinimumWidth(Rect textBounds, Rect labelBounds) {
-        return textBounds.width() > labelBounds.width() ? textBounds.width() : labelBounds.width();
+        return (textBounds.width() > labelBounds.width() ? textBounds.width() : labelBounds.width()) + getPaddingStartEnd();
     }
 
     /**
@@ -247,11 +246,20 @@ public class LabelView extends View {
      * @return measured minimum height.
      */
     private int measureMinimumHeight(Paint.FontMetrics textMetrics, Paint.FontMetrics labelMetrics, Paint linePaint) {
-        return (int) ((textMetrics.bottom - textMetrics.top) + (labelMetrics.bottom - labelMetrics.top) + linePaint.getStrokeWidth());
+        return (int) ((textMetrics.bottom - textMetrics.top) + (labelMetrics.bottom - labelMetrics.top) + linePaint.getStrokeWidth()) + getPaddingTopBottom();
+    }
+
+    private int getPaddingStartEnd() {
+        return getPaddingStart() + getPaddingEnd();
+    }
+
+    private int getPaddingTopBottom() {
+        return getPaddingTop() + getPaddingBottom();
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         textPaint.getTextBounds(textValue, 0, textValue.length(), textBounds);
         labelPaint.getTextBounds(labelValue, 0, labelValue.length(), labelBounds);
 
@@ -279,15 +287,16 @@ public class LabelView extends View {
     @Override
     protected void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
         super.onSizeChanged(width, height, oldWidth, oldHeight);
-        updateLineYPosition(height);
-        updateTextPosition(textBounds, width);
-        updateLabelPosition(labelBounds, width);
+        int heightWithoutPadding = height - getPaddingTopBottom();
+        int widthWithoutPadding = width - getPaddingStartEnd();
+        updateLineYPosition(heightWithoutPadding);
+        updateTextPosition(textBounds, widthWithoutPadding);
+        updateLabelPosition(labelBounds, widthWithoutPadding);
         updateLineXPosition(textBounds, labelBounds);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        //super.onDraw(canvas);
         canvas.drawLine(lineStartX, lineY, lineEndX, lineY, linePaint);
         canvas.drawText(labelValue, labelX, labelY, labelPaint);
         canvas.drawText(textValue, textX, textY, textPaint);
