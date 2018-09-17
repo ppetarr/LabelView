@@ -232,7 +232,7 @@ public class LabelView extends View {
      * @return measured minimum width.
      */
     private int measureMinimumWidth(Rect textBounds, Rect labelBounds) {
-        return (textBounds.width() > labelBounds.width() ? textBounds.width() : labelBounds.width() + getPaddingStartEnd());
+        return (textBounds.width() > labelBounds.width() ? textBounds.width() : labelBounds.width()) + getPaddingStartEnd();
     }
 
     /**
